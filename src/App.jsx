@@ -8,6 +8,7 @@ import Profile from "./pages/Profile";
 import Medicines from "./pages/Medicines";
 import Schedules from "./pages/Schedules";
 import Doselogs from "./pages/Doselogs";
+import Symptoms from "./pages/Symptoms";
 import ProtectedRoute from './routes/ProtectedRoute';
 
 function App() {
@@ -22,8 +23,8 @@ function App() {
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/medicines" element={<ProtectedRoute><Medicines /></ProtectedRoute>} />
         <Route path="/schedules" element={<ProtectedRoute><Schedules /></ProtectedRoute>} />
+        <Route path="/symptoms"element={<ProtectedRoute><Symptoms /></ProtectedRoute>}/>
         <Route path="/doselogs" element={<ProtectedRoute><Doselogs /></ProtectedRoute>} />
-
       </Routes>
   );
 }

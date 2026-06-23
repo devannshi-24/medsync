@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerUser } from "../../services/authService";
+import { registerUser, googleAuthService } from "../../services/authService";
 import toast from "react-hot-toast";
 import { gsap } from "gsap";
+import { GoogleLogin } from "@react-oauth/google";
 import {
-  FiUser, FiMail, FiLock, FiUsers, FiChevronDown,
+  FiUser, FiMail, FiLock,
   FiCheck, FiActivity, FiShield, FiBell, FiClock, FiStar
 } from "react-icons/fi";
 import { FaHeartbeat } from "react-icons/fa";
@@ -16,7 +17,6 @@ function Register() {
     name: "",
     email: "",
     password: "",
-    role: "patient",
   });
 
   const [agreed, setAgreed] = useState(false);
@@ -33,7 +33,6 @@ function Register() {
 
   useEffect(() => {
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-
     tl.fromTo(leftPanelRef.current,  { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7 })
       .fromTo(rightPanelRef.current, { x: "100%", opacity: 0 }, { x: "0%", opacity: 1, duration: 0.9 }, "-=0.4")
       .fromTo(badgeRef.current,      { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 }, "-=0.4")
@@ -42,7 +41,6 @@ function Register() {
       .fromTo(statsRef.current,      { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 }, "-=0.25")
       .fromTo(featuresRef.current,   { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 }, "-=0.25")
       .fromTo(trustRef.current,      { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4 }, "-=0.2");
-
     return () => tl.kill();
   }, []);
 
@@ -59,11 +57,25 @@ function Register() {
       navigate("/");
     } catch (error) {
       console.log(error);
-      console.log(error.response);
       toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const data = await googleAuthService(credentialResponse.credential);
+      toast.success(data.message || "Google sign-up successful");
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Google sign-up failed");
+    }
+  };
+
+  const handleGoogleError = () => {
+    toast.error("Google sign-up was cancelled or failed");
   };
 
   return (
@@ -72,7 +84,7 @@ function Register() {
       {/* ── Left: Form Panel ── */}
       <div
         ref={leftPanelRef}
-        className="flex flex-col justify-center w-full lg:w-1/2 px-8 md:px-14 py-6 bg-slate-50 overflow-hidden"
+        className="flex flex-col justify-center w-full lg:w-1/2 px-8 md:px-14 py-6 bg-slate-50 overflow-y-auto"
       >
         {/* Logo */}
         <div className="flex items-center gap-2.5 mb-6">
@@ -83,11 +95,34 @@ function Register() {
         </div>
 
         <h1 className="text-3xl font-bold text-slate-900 mb-1">Create your account</h1>
-        <p className="text-slate-500 text-sm mb-6">Your personal health command center — built around you.</p>
+        <p className="text-slate-500 text-sm mb-5">Your personal health command center — built around you.</p>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        {/* ── Google Button ──
+            width must be a NUMBER (pixels), not "100%"
+            We use a wrapper div to control actual width via Tailwind         */}
+        <div className="w-full mb-4 flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+            useOneTap={false}
+            theme="outline"
+            size="large"
+            width={460}
+            text="continue_with"
+            shape="rectangular"
+          />
+        </div>
 
-          {/* Full Name */}
+        {/* Divider */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-1 h-px bg-slate-200" />
+          <span className="text-xs text-slate-400 font-medium">or register with email</span>
+          <div className="flex-1 h-px bg-slate-200" />
+        </div>
+
+        {/* ── Email / Password Form — Role removed ── */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Full name</label>
             <div className="flex items-center bg-white border border-slate-200 rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition">
@@ -104,7 +139,6 @@ function Register() {
             </div>
           </div>
 
-          {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
             <div className="flex items-center bg-white border border-slate-200 rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition">
@@ -121,7 +155,6 @@ function Register() {
             </div>
           </div>
 
-          {/* Password */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
             <div className="flex items-center bg-white border border-slate-200 rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition">
@@ -137,24 +170,6 @@ function Register() {
               />
             </div>
             <p className="text-xs text-slate-400 mt-1">Use 8+ characters with a mix of letters and numbers.</p>
-          </div>
-
-          {/* Role */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Role</label>
-            <div className="relative flex items-center bg-white border border-slate-200 rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition">
-              <FiUsers className="text-slate-400 ml-3.5 shrink-0" />
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="flex-1 border-none bg-transparent px-3 py-2.5 text-sm text-slate-800 outline-none appearance-none cursor-pointer pr-8"
-              >
-                <option value="patient">Patient</option>
-                <option value="doctor">Doctor</option>
-              </select>
-              <FiChevronDown className="text-slate-400 absolute right-3 pointer-events-none" />
-            </div>
           </div>
 
           {/* Terms checkbox */}
@@ -176,7 +191,6 @@ function Register() {
             </span>
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
@@ -188,11 +202,8 @@ function Register() {
 
         <p className="text-center text-sm text-slate-500 mt-4">
           Already have an account?{" "}
-          <Link to="/" className="text-blue-500 font-semibold hover:underline">
-            Sign in
-          </Link>
+          <Link to="/" className="text-blue-500 font-semibold hover:underline">Sign in</Link>
         </p>
-
         <p className="text-center text-xs text-slate-400 mt-3">
           © 2026 Med-Core. Your data, encrypted &amp; private.
         </p>
@@ -214,14 +225,13 @@ function Register() {
         <h2 ref={headingRef} className="text-4xl font-extrabold leading-tight tracking-tight mb-3">
           Take command of your health, one capsule at a time.
         </h2>
-
         <p ref={subtitleRef} className="text-white/80 text-base leading-relaxed mb-6">
           Track medications, log symptoms, and get personalized insights — all in one calm, focused dashboard.
         </p>
 
         <div ref={statsRef} className="flex gap-4 mb-6">
           {[
-            { icon: <FiActivity className="text-white text-lg" />, value: "98%",   label: "Adherence tracking · average user score" },
+            { icon: <FiActivity className="text-white text-lg" />,  value: "98%",   label: "Adherence tracking · average user score" },
             { icon: <FaHeartbeat className="text-white text-lg" />, value: "2.4M+", label: "Symptoms logged · and counting" },
           ].map((stat, i) => (
             <div key={i} className="flex-1 bg-white/10 border border-white/20 rounded-2xl p-4 backdrop-blur-sm">
