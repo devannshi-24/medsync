@@ -15,13 +15,10 @@ const userSchema=new mongoose.Schema({
     },
     password:{
         type:String,
-        required:true,
         minlength:6
     },
-    role:{
-        type:String,
-        enum:['patient','doctor','admin'],
-        default:'patient'
+    googleId:{
+    type:String
     },
     isVerified:{
         type:Boolean,
@@ -30,7 +27,7 @@ const userSchema=new mongoose.Schema({
 },{timestamps:true});
 
 userSchema.methods.generateAuthToken= function(){
-    const token= jwt.sign({_id:this._id,role:this.role},process.env.JWT_SECRET,{expiresIn:'2d'})
+    const token= jwt.sign({_id:this._id},process.env.JWT_SECRET,{expiresIn:'2d'})
     return token;
 }
 
