@@ -9,6 +9,7 @@ import Medicines from "./pages/Medicines";
 import Schedules from "./pages/Schedules";
 import Doselogs from "./pages/Doselogs";
 import Symptoms from "./pages/Symptoms";
+import ForgotPassword from "./pages/auth/ForgotPassword";
 import ProtectedRoute from './routes/ProtectedRoute';
 
 function App() {
@@ -25,8 +26,9 @@ function App() {
         <Route path="/schedules" element={<ProtectedRoute><Schedules /></ProtectedRoute>} />
         <Route path="/symptoms"element={<ProtectedRoute><Symptoms /></ProtectedRoute>}/>
         <Route path="/doselogs" element={<ProtectedRoute><Doselogs /></ProtectedRoute>} />
+        <Route path="/forgot-password" element={<ProtectedRoute><ForgotPassword /></ProtectedRoute>} />
       </Routes>
   );
-}
+} 
 
 export default App

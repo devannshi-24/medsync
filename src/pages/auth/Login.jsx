@@ -141,9 +141,7 @@ function Login() {
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="block text-sm font-medium text-gray-700">Password</label>
-              <span className="text-sm text-blue-500 font-medium cursor-pointer hover:underline">
-                Forgot password?
-              </span>
+              <span onClick={() => navigate("/forgot-password")} className="text-sm text-blue-500 font-medium cursor-pointer hover:underline">Forgot password?</span>
             </div>
             <div className="flex items-center bg-white border border-slate-200 rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition">
               <FiLock className="text-slate-400 ml-3.5 shrink-0" />
