@@ -93,6 +93,9 @@ export const deleteMedicine= async(req,res)=>{
 
 export const updateMedicine = async(req,res)=>{
     try{
+        console.log("Update route hit");
+        console.log(req.params.id);
+        console.log(req.user);
         const user= req.user
         const medicineId= req.params.id
         const {name,purpose,notes}= req.body

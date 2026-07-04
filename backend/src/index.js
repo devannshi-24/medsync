@@ -1,6 +1,9 @@
 import dotenv from "dotenv";
 dotenv.config();
+import startMedicineReminderJob from "./jobs/medicineReminder.js";
+import "./config/firebase.js";
 import connectDB from "./config/db.js";
+
 
 
 
@@ -10,6 +13,8 @@ import { app } from "./app.js";
 
 
 connectDB();
+
+startMedicineReminderJob();
 
 
 

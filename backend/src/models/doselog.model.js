@@ -16,6 +16,15 @@ const doseLogSchema= new mongoose.Schema({
         enum:["taken","missed"],
         required:true
     },
+        medicineName:{          
+        type:String,
+        required:true
+    },
+
+    dosage:{            
+        type:String,
+        required:true
+    },
     loggedAt:{
         type:Date,
         default:Date.now

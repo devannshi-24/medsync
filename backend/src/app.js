@@ -11,6 +11,8 @@ import scheduleRouter from "./routes/schedule.route.js";
 import doseLogRouter from "./routes/doselog.route.js";
 import dashboardRouter from "./routes/dashboard.route.js";
 import symptomRouter from "./routes/symptom.route.js";
+import deviceRouter from "./routes/device.route.js";
+import notificationRouter from "./routes/notification.route.js";
 
 
 
@@ -34,6 +36,8 @@ app.use("/api/schedule", scheduleRouter)
 app.use("/api/doselog", doseLogRouter)
 app.use("/api/dashboard",dashboardRouter)
 app.use("/api/symptom",symptomRouter)
+app.use("/api/device",deviceRouter)
+app.use("/api/notification",notificationRouter)
 
 
 

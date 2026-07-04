@@ -20,7 +20,7 @@ const symptomSchema= new mongoose.Schema({
     notes:{
         type:String,
         trim : true,
-        maxlength:100
+        maxlength:300
     },
     loggedAt: {
         type: Date,

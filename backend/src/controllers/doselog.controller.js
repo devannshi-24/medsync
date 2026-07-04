@@ -7,7 +7,7 @@ export const addDoseLog= async(req,res)=>{
         const user= req.user
         const {scheduleId,status}= req.body;
 
-        const schedule= await Schedule.findOne({_id:scheduleId,userId:user._id})
+        const schedule= await Schedule.findOne({_id:scheduleId,userId:user._id}).populate("medicineId","name")
         if(!schedule){
             return res.status(404).json({message:"no schedule found to log dose"})
         }
@@ -15,6 +15,10 @@ export const addDoseLog= async(req,res)=>{
         const doselog= new DoseLog({
             userId:user._id,
             scheduleId,
+            // changes
+            medicineName: schedule.medicineId.name,
+            dosage: schedule.dosage,
+            // .
             status
         })
         await doselog.save();
@@ -27,6 +31,7 @@ export const addDoseLog= async(req,res)=>{
         res.status(500).json({message:"Error while logging dose",error:err.message})
     }
 }
+
 
 export const getDoseLogs= async(req,res)=>{
     try{
@@ -43,7 +48,11 @@ export const getDoseLogs= async(req,res)=>{
         })
 
         if(doseLogs.length===0){
-            return res.status(404).json({message:"No dose logs found"})
+            return res.status(200).json({
+           message: "No dose logs found",
+           doseLogs: [],
+           count: 0
+          });
         }
         res.status(200).json({doseLogs})
 
@@ -67,7 +76,10 @@ export const getAllDoseLogs= async(req,res)=>{
         })
 
         if(doseLogs.length===0){
-            return res.status(404).json({message:"No dose logs found"})
+            return res.status(200).json({
+                doseLogs: [],
+                count:0,
+                message:"No dose logs found"})
         }
         res.status(200).json({doseLogs})
 

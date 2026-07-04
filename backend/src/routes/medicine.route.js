@@ -8,7 +8,7 @@ medicineRouter.post("/",isAuth,addMedicine)
 medicineRouter.get("/",isAuth,getMedicines)
 medicineRouter.get("/:id",isAuth,getMedicineById)
 medicineRouter.delete("/:id",isAuth,deleteMedicine)
-medicineRouter.put("/;id",isAuth,updateMedicine)
+medicineRouter.put("/:id",isAuth,updateMedicine)
 
 
 export default medicineRouter
