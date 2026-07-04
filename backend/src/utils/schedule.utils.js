@@ -35,3 +35,20 @@ export const isTimeDue = (schedule, now = new Date()) => {
     return schedule.times.includes(currentTime);
 
 };
+
+export const hasReminderBeenSent = (schedule, now = new Date()) => {
+
+    if (!schedule.lastReminderSent) {
+        return false;
+    }
+
+    const last = new Date(schedule.lastReminderSent);
+
+    return (
+        last.getFullYear() === now.getFullYear() &&
+        last.getMonth() === now.getMonth() &&
+        last.getDate() === now.getDate() &&
+        last.getHours() === now.getHours() &&
+        last.getMinutes() === now.getMinutes()
+    );
+};

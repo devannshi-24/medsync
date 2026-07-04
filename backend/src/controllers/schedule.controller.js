@@ -188,12 +188,10 @@ export const deactivateSchedule = async (req, res) => {
       .status(200)
       .json({ message: "schedule deactivated succesfully", schedule });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        message: "error while deactivating schedule",
-        error: err.message,
-      });
+    res.status(500).json({
+      message: "error while deactivating schedule",
+      error: err.message,
+    });
   }
 };
 
@@ -220,5 +218,38 @@ export const activateSchedule = async (req, res) => {
     res
       .status(500)
       .json({ message: "error while activating schedule", error: err.message });
+  }
+};
+
+export const snoozeReminder = async (req, res) => {
+  try {
+    const { scheduleId, minutes } = req.body;
+
+    const schedule = await Schedule.findOne({
+      _id: scheduleId,
+      userId: req.user._id,
+    });
+
+    if (!schedule) {
+      return res.status(404).json({
+        message: "Schedule not found",
+      });
+    }
+
+    const snoozedUntil = new Date();
+    snoozedUntil.setMinutes(snoozedUntil.getMinutes() + (minutes || 10));
+
+    schedule.snoozedUntil = snoozedUntil;
+    await schedule.save(); 
+
+    return res.status(200).json({
+      message: "Reminder snoozed",
+      snoozedUntil,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error snoozing reminder",
+      error: error.message,
+    });
   }
 };

@@ -47,6 +47,14 @@ const scheduleSchema= new mongoose.Schema({
     isActive:{
         type:Boolean,
         default:true
+    },
+    lastReminderSent:{
+        type:Date,
+        default:null
+    },
+    snoozedUntil:{
+        type:Date,
+        default:null
     }
  },
      {timestamps:true}
@@ -55,3 +63,4 @@ const scheduleSchema= new mongoose.Schema({
 const Schedule= mongoose.model("Schedule",scheduleSchema)
 
 export default Schedule 
+
