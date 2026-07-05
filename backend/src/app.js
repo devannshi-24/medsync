@@ -13,6 +13,9 @@ import dashboardRouter from "./routes/dashboard.route.js";
 import symptomRouter from "./routes/symptom.route.js";
 import deviceRouter from "./routes/device.route.js";
 import notificationRouter from "./routes/notification.route.js";
+import AIRouter from "./routes/ai.route.js";
+
+
 
 
 
@@ -38,6 +41,8 @@ app.use("/api/dashboard",dashboardRouter)
 app.use("/api/symptom",symptomRouter)
 app.use("/api/device",deviceRouter)
 app.use("/api/notification",notificationRouter)
+app.use("/api/ai",AIRouter)
+
 
 
 
