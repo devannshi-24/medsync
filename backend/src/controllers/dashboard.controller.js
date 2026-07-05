@@ -50,14 +50,20 @@ export const getDashboard= async(req,res)=>{
 
         const adherenceScore= totalDoses===0?0: Math.round((takenDoses/totalDoses)*100)
 
+        const startOfToday= new Date()
+        startOfToday.setHours(0,0,0,0)
+        const endOfToday= new Date()
+        endOfToday.setHours(23,59,59,999)
+
         const schedules= await Schedule.find({
             userId:user._id,
             isActive:true,
-            startDate:{$lte: new Date()},
-            endDate:{$gte: new Date()}
+            startDate:{$lte: endOfToday},
+            endDate:{$gte: startOfToday}
         }).populate("medicineId","name")
 
-        const today= new Date()
+        const today= startOfToday
+
         today.setHours(0,0,0,0)
 
         const todaySchedules= schedules.filter(schedule=>{
@@ -85,6 +91,7 @@ export const getDashboard= async(req,res)=>{
         })
 
         const todaySchedulesData= todaySchedules.map(schedule=>({
+            _id:schedule._id,
             medicine: schedule.medicineId?.name,
             dosage: schedule.dosage,
             frequency:schedule.frequency,
