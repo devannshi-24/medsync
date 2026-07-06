@@ -1,32 +1,34 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {  sendOTP, verifyOTP, googleAuthService } from "../../services/authService";
+import { forgotPassword, resetPassword } from "../../services/authService";
 import toast from "react-hot-toast";
 import { gsap } from "gsap";
-import { GoogleLogin } from "@react-oauth/google";
-import { initializeNotifications } from "../../utils/notification";
 import {
-  FiUser, FiMail, FiLock,FiArrowLeft,
-  FiCheck, FiActivity, FiShield, FiBell, FiClock, FiStar
+  FiMail, FiLock, FiArrowLeft,
+  FiActivity, FiShield, FiBell, FiClock, FiStar, FiCheck
 } from "react-icons/fi";
 import { FaHeartbeat } from "react-icons/fa";
 
-function Register() {
+function ForgotPassword() {
   const navigate = useNavigate();
-  const [step, setStep] = useState("form");
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
 
+  // "email"  → step 1: enter email
+  // "otp"    → step 2: enter OTP + new password
+  // "done"   → step 3: success screen
+  const [step, setStep] = useState("email");
+
+  const [email, setEmail] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [agreed, setAgreed] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
 
+  // OTP box refs for auto-focus
   const otpRefs = useRef([]);
 
+  // GSAP refs
+  const leftPanelRef  = useRef(null);
   const rightPanelRef = useRef(null);
   const badgeRef      = useRef(null);
   const headingRef    = useRef(null);
@@ -34,7 +36,6 @@ function Register() {
   const statsRef      = useRef(null);
   const featuresRef   = useRef(null);
   const trustRef      = useRef(null);
-  const leftPanelRef  = useRef(null);
 
   useEffect(() => {
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
@@ -49,28 +50,24 @@ function Register() {
     return () => tl.kill();
   }, []);
 
-
+  // 60s resend countdown — matches backend cooldown
   useEffect(() => {
     if (resendTimer <= 0) return;
     const interval = setInterval(() => {
       setResendTimer((prev) => prev - 1);
     }, 1000);
     return () => clearInterval(interval);
-  }, [resendTimer])
+  }, [resendTimer]);
 
-  const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  // ── Step 1: Send OTP ──────────────────────────────────────
+  // ── Step 1: Send reset OTP ────────────────────────────────
   const handleSendOTP = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      await sendOTP(formData.name, formData.email, formData.password);
-      toast.success("OTP sent to your email!");
+      await forgotPassword(email);
+      toast.success("Reset OTP sent to your email!");
       setStep("otp");
-      setResendTimer(60); // backend enforces 60s cooldown
+      setResendTimer(60);
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || "Failed to send OTP");
@@ -79,34 +76,44 @@ function Register() {
     }
   };
 
-  // ── Step 2: Verify OTP ────────────────────────────────────
-  const handleVerifyOTP = async (e) => {
+  // ── Step 2: Verify OTP + reset password ───────────────────
+  const handleResetPassword = async (e) => {
     e.preventDefault();
     const otpString = otp.join("");
+
     if (otpString.length < 6) {
       toast.error("Please enter the full 6-digit OTP");
       return;
     }
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
     try {
       setLoading(true);
-      const data = await verifyOTP(formData.email, otpString);
-      await initializeNotifications();
-      toast.success(data.message || "Email verified! Welcome aboard 🎉");
-      navigate("/");
+      const data = await resetPassword(email, otpString, newPassword);
+      toast.success(data.message || "Password reset successful!");
+      setStep("done");
     } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message || "Invalid or expired OTP");
+      toast.error(error.response?.data?.message || "Failed to reset password");
     } finally {
       setLoading(false);
     }
   };
 
+  // Resend reset OTP
   const handleResendOTP = async () => {
     if (resendTimer > 0) return;
     try {
       setLoading(true);
-      await sendOTP(formData.name, formData.email, formData.password);
-      toast.success("New OTP sent to your email!");
+      await forgotPassword(email);
+      toast.success("New OTP sent!");
       setResendTimer(60);
       setOtp(["", "", "", "", "", ""]);
       otpRefs.current[0]?.focus();
@@ -117,66 +124,30 @@ function Register() {
     }
   };
 
-  //  Handle each OTP box — auto-advance, handle backspace
+  // OTP box handlers
   const handleOtpChange = (index, value) => {
-    if (!/^\d*$/.test(value)) return; // digits only
+    if (!/^\d*$/.test(value)) return;
     const updated = [...otp];
-    updated[index] = value.slice(-1);  // take only last character
+    updated[index] = value.slice(-1);
     setOtp(updated);
-    // Auto-focus next box
     if (value && index < 5) {
       otpRefs.current[index + 1]?.focus();
     }
   };
- 
+
   const handleOtpKeyDown = (index, e) => {
-    // On backspace, clear current and go back
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       otpRefs.current[index - 1]?.focus();
     }
   };
- 
+
   const handleOtpPaste = (e) => {
     e.preventDefault();
     const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
     const updated = [...otp];
     pasted.split("").forEach((char, i) => { updated[i] = char; });
     setOtp(updated);
-    // Focus last filled box
     otpRefs.current[Math.min(pasted.length, 5)]?.focus();
-  };
-
-
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     setLoading(true);
-  //     const data = await registerUser(formData);
-  //     toast.success(data.message || "Registration successful");
-  //     navigate("/");
-  //   } catch (error) {
-  //     console.log(error);
-  //     toast.error(error.response?.data?.message || "Something went wrong");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  const handleGoogleSuccess = async (credentialResponse) => {
-    try {
-      const data = await googleAuthService(credentialResponse.credential);
-      await initializeNotifications();
-      toast.success(data.message || "Google sign-up successful");
-      navigate("/dashboard");
-    } catch (error) {
-      console.log(error);
-      toast.error(error.response?.data?.message || "Google sign-up failed");
-    }
-  };
-
-  const handleGoogleError = () => {
-    toast.error("Google sign-up was cancelled or failed");
   };
 
   return (
@@ -195,115 +166,55 @@ function Register() {
           <span className="font-bold text-lg text-slate-800 tracking-tight">Med-Core</span>
         </div>
 
-        {step === "form" && (
+        {/* ════════════════════════════════════════
+            STEP 1 — Enter Email
+            ════════════════════════════════════════ */}
+        {step === "email" && (
           <>
-            <h1 className="text-3xl font-bold text-slate-900 mb-1">Create your account</h1>
-            <p className="text-slate-500 text-sm mb-5">Your personal health command center — built around you.</p>
- 
-            {/* Google Button */}
-            <div className="w-full mb-4 flex justify-center">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                useOneTap={false}
-                theme="outline"
-                size="large"
-                width={460}
-                text="continue_with"
-                shape="rectangular"
-              />
+            <button
+              onClick={() => navigate("/")}
+              className="flex items-center gap-1.5 text-slate-500 hover:text-slate-700 text-sm mb-6 w-fit transition"
+            >
+              <FiArrowLeft />
+              Back to sign in
+            </button>
+
+            <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-5">
+              <FiLock className="text-blue-500 text-2xl" />
             </div>
- 
-            {/* Divider */}
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex-1 h-px bg-slate-200" />
-              <span className="text-xs text-slate-400 font-medium">or register with email</span>
-              <div className="flex-1 h-px bg-slate-200" />
-            </div>
- 
-            {/* Form */}
-            <form onSubmit={handleSendOTP} className="flex flex-col gap-3.5">
- 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Full name</label>
-                <div className="flex items-center bg-white border border-slate-200 rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition">
-                  <FiUser className="text-slate-400 ml-3.5 shrink-0" />
-                  <input
-                    type="text"
-                    name="name"
-                    placeholder="Jane Doe"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="flex-1 border-none bg-transparent px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 outline-none"
-                  />
-                </div>
-              </div>
- 
+
+            <h1 className="text-3xl font-bold text-slate-900 mb-1">Forgot password?</h1>
+            <p className="text-slate-500 text-sm mb-7">
+              No worries — enter your email and we'll send you a reset code.
+            </p>
+
+            <form onSubmit={handleSendOTP} className="flex flex-col gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
                 <div className="flex items-center bg-white border border-slate-200 rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition">
                   <FiMail className="text-slate-400 ml-3.5 shrink-0" />
                   <input
                     type="email"
-                    name="email"
                     placeholder="you@example.com"
-                    value={formData.email}
-                    onChange={handleChange}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                     className="flex-1 border-none bg-transparent px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 outline-none"
                   />
                 </div>
               </div>
- 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
-                <div className="flex items-center bg-white border border-slate-200 rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition">
-                  <FiLock className="text-slate-400 ml-3.5 shrink-0" />
-                  <input
-                    type="password"
-                    name="password"
-                    placeholder="At least 6 characters"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                    minLength={6}
-                    className="flex-1 border-none bg-transparent px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 outline-none"
-                  />
-                </div>
-                <p className="text-xs text-slate-400 mt-1">Use 6+ characters with a mix of letters and numbers.</p>
-              </div>
- 
-              {/* Terms */}
-              <div className="flex items-center gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setAgreed(!agreed)}
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                    agreed ? "bg-blue-500 border-blue-500" : "border-slate-300 bg-transparent"
-                  }`}
-                >
-                  {agreed && <FiCheck className="text-white text-xs" strokeWidth={3} />}
-                </button>
-                <span className="text-sm text-slate-600">
-                  I agree to the{" "}
-                  <span className="text-blue-500 font-medium cursor-pointer">Terms of Service</span>
-                  {" "}and{" "}
-                  <span className="text-blue-500 font-medium cursor-pointer">Privacy Policy</span>.
-                </span>
-              </div>
- 
+
               <button
                 type="submit"
-                disabled={loading || !agreed}
+                disabled={loading}
                 className="w-full py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-semibold text-sm rounded-xl transition-colors cursor-pointer"
               >
-                {loading ? "Sending OTP…" : "Continue"}
+                {loading ? "Sending OTP…" : "Send Reset Code"}
               </button>
             </form>
- 
-            <p className="text-center text-sm text-slate-500 mt-4">
-              Already have an account?{" "}
+
+            <p className="text-center text-sm text-slate-500 mt-5">
+              Remember your password?{" "}
               <Link to="/" className="text-blue-500 font-semibold hover:underline">Sign in</Link>
             </p>
             <p className="text-center text-xs text-slate-400 mt-3">
@@ -312,61 +223,104 @@ function Register() {
           </>
         )}
 
+        {/* ════════════════════════════════════════
+            STEP 2 — OTP + New Password
+            ════════════════════════════════════════ */}
         {step === "otp" && (
           <>
-            {/* Back button */}
             <button
-              onClick={() => { setStep("form"); setOtp(["", "", "", "", "", ""]); }}
+              onClick={() => { setStep("email"); setOtp(["", "", "", "", "", ""]); }}
               className="flex items-center gap-1.5 text-slate-500 hover:text-slate-700 text-sm mb-6 w-fit transition"
             >
               <FiArrowLeft />
               Back
             </button>
- 
-            {/* Email icon circle */}
+
             <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-5">
               <FiMail className="text-blue-500 text-2xl" />
             </div>
- 
+
             <h1 className="text-3xl font-bold text-slate-900 mb-1">Check your email</h1>
-            <p className="text-slate-500 text-sm mb-1">
-              We sent a 6-digit code to
-            </p>
-            <p className="text-blue-500 font-semibold text-sm mb-7">{formData.email}</p>
- 
-            <form onSubmit={handleVerifyOTP} className="flex flex-col gap-5">
- 
-              {/* 6 OTP boxes */}
-              <div className="flex gap-3 justify-center" onPaste={handleOtpPaste}>
-                {otp.map((digit, index) => (
-                  <input
-                    key={index}
-                    ref={(el) => (otpRefs.current[index] = el)}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => handleOtpChange(index, e.target.value)}
-                    onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                    className="w-12 h-12 text-center text-lg font-bold border border-slate-200 rounded-xl bg-white text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
-                  />
-                ))}
+            <p className="text-slate-500 text-sm mb-1">We sent a 6-digit reset code to</p>
+            <p className="text-blue-500 font-semibold text-sm mb-6">{email}</p>
+
+            <form onSubmit={handleResetPassword} className="flex flex-col gap-4">
+
+              {/* OTP Boxes */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">Reset code</label>
+                <div className="flex gap-3 justify-center" onPaste={handleOtpPaste}>
+                  {otp.map((digit, index) => (
+                    <input
+                      key={index}
+                      ref={(el) => (otpRefs.current[index] = el)}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleOtpChange(index, e.target.value)}
+                      onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                      className="w-12 h-12 text-center text-lg font-bold border border-slate-200 rounded-xl bg-white text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+                    />
+                  ))}
+                </div>
               </div>
- 
+
+              {/* New Password */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">New password</label>
+                <div className="flex items-center bg-white border border-slate-200 rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition">
+                  <FiLock className="text-slate-400 ml-3.5 shrink-0" />
+                  <input
+                    type="password"
+                    placeholder="At least 6 characters"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="flex-1 border-none bg-transparent px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirm password</label>
+                <div className={`flex items-center bg-white border rounded-xl focus-within:ring-2 transition ${
+                  confirmPassword && newPassword !== confirmPassword
+                    ? "border-red-300 focus-within:border-red-400 focus-within:ring-red-100"
+                    : "border-slate-200 focus-within:border-blue-500 focus-within:ring-blue-100"
+                }`}>
+                  <FiLock className="text-slate-400 ml-3.5 shrink-0" />
+                  <input
+                    type="password"
+                    placeholder="Re-enter new password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    className="flex-1 border-none bg-transparent px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 outline-none"
+                  />
+                </div>
+                {/* Inline mismatch warning */}
+                {confirmPassword && newPassword !== confirmPassword && (
+                  <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
+                )}
+              </div>
+
               <button
                 type="submit"
                 disabled={loading || otp.join("").length < 6}
                 className="w-full py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-semibold text-sm rounded-xl transition-colors cursor-pointer"
               >
-                {loading ? "Verifying…" : "Verify & Create Account"}
+                {loading ? "Resetting…" : "Reset Password"}
               </button>
             </form>
- 
-            {/* Resend OTP */}
+
+            {/* Resend */}
             <div className="text-center mt-5">
               {resendTimer > 0 ? (
                 <p className="text-sm text-slate-400">
-                  Resend OTP in{" "}
+                  Resend code in{" "}
                   <span className="font-semibold text-slate-600">{resendTimer}s</span>
                 </p>
               ) : (
@@ -377,16 +331,40 @@ function Register() {
                     disabled={loading}
                     className="text-blue-500 font-semibold hover:underline disabled:opacity-50"
                   >
-                    Resend OTP
+                    Resend code
                   </button>
                 </p>
               )}
             </div>
- 
-            <p className="text-center text-xs text-slate-400 mt-6">
+
+            <p className="text-center text-xs text-slate-400 mt-5">
               © 2026 Med-Core. Your data, encrypted &amp; private.
             </p>
           </>
+        )}
+
+        {/* ════════════════════════════════════════
+            STEP 3 — Success Screen
+            ════════════════════════════════════════ */}
+        {step === "done" && (
+          <div className="flex flex-col items-center text-center">
+            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-6">
+              <FiCheck className="text-green-500 text-3xl" strokeWidth={2.5} />
+            </div>
+
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">Password reset!</h1>
+            <p className="text-slate-500 text-sm mb-8">
+              Your password has been updated successfully.
+              You can now sign in with your new password.
+            </p>
+
+            <Link
+              to="/"
+              className="w-full py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold text-sm rounded-xl transition-colors text-center block"
+            >
+              Back to Sign in
+            </Link>
+          </div>
         )}
       </div>
 
@@ -448,4 +426,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default ForgotPassword;

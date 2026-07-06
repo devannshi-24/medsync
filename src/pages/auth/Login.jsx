@@ -1,9 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef,useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser, googleAuthService } from "../../services/authService";
 import toast from "react-hot-toast";
 import { gsap } from "gsap";
 import { GoogleLogin } from "@react-oauth/google";
+import { initializeNotifications } from "../../utils/notification";
+import { AuthContext } from "../../context/AuthContext";
 import {
   FiMail, FiLock, FiCheck, FiActivity, FiShield,
   FiBell, FiClock, FiStar
@@ -12,6 +14,7 @@ import { FaHeartbeat } from "react-icons/fa";
 
 function Login() {
   const navigate = useNavigate();
+  const { checkAuth } = useContext(AuthContext);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -52,6 +55,8 @@ function Login() {
     try {
       setLoading(true);
       const data = await loginUser(formData);
+      await initializeNotifications();
+      await checkAuth();
       toast.success(data.message || "Login successful");
       navigate("/dashboard");
     } catch (error) {
@@ -66,9 +71,18 @@ function Login() {
   // same /auth/google endpoint, backend handles new vs returning user
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      const data = await googleAuthService(credentialResponse.credential);
-      toast.success(data.message || "Google sign-in successful");
-      navigate("/dashboard");
+      console.log("1. Google callback");
+
+    const data = await googleAuthService(credentialResponse.credential);
+    console.log("2. Backend login success", data);
+
+    console.log("3. Before notifications");
+    await initializeNotifications();
+    await checkAuth();
+    console.log("4. Notifications initialized");
+
+    console.log("5. Navigating...");
+    navigate("/dashboard");
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || "Google sign-in failed");

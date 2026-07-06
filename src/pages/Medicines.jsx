@@ -7,17 +7,20 @@ import {getMedicines,addMedicine,deleteMedicine,updateMedicine} from "../service
 import toast from "react-hot-toast";
 import { GiMedicines } from "react-icons/gi";
 
+import Highlight from "../components/Highlight";
+
 function Medicines() {
 
   const [medicines, setMedicines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingMedicine, setEditingMedicine] = useState(null);
+  const [search, setSearch] = useState("");
 
   const fetchMedicines = async () => {
     try {
       const data = await getMedicines();
-      setMedicines(data.medicines);
+      setMedicines(data.medicines || []);
     } catch (error) {
       console.log(error);
       toast.error("Failed to fetch medicines");
@@ -64,8 +67,7 @@ function Medicines() {
     console.log(error);
 
     toast.error(
-      error.response?.data?.message ||
-      "Failed to update medicine"
+      error.response?.data?.message || "Failed to update medicine"
     );
 
   }
@@ -84,6 +86,12 @@ function Medicines() {
     }
   };
 
+  const filteredMedicines = medicines.filter((medicine) =>{
+    const query = search.toLowerCase();
+    return(
+      medicine.name?.toLowerCase().includes(query) || medicine.purpose?.toLowerCase().includes(query) || medicine.notes?.toLowerCase().includes(query)
+    );
+  });
   return (
     <DashboardLayout>
 
@@ -92,11 +100,18 @@ function Medicines() {
         subtitle="Manage all your medicines."
         showSearch={true}
         searchPlaceholder="Search medicines..."
+        searchValue={search}
+        onSearchChange={setSearch}
         actionButton={
          <button onClick={() =>{
           setEditingMedicine(null);
           setShowModal(true);
          }} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-medium">Add Medicine</button>
+        }
+        resultCount={
+          search
+            ? { filtered: filteredMedicines.length, total: medicines.length }
+            : null
         }
       />
 
@@ -123,32 +138,33 @@ function Medicines() {
         {
           loading ? (
             <p>Loading medicines...</p>
-          ) : medicines.length === 0 ? (
+          ) : filteredMedicines.length === 0 ? (
             <div className="bg-white rounded-2xl shadow-md p-6">
               <p className="text-slate-500">
-                No medicines added yet.
+                {search ? "No medicines found for your search." : "You have no medicines added yet."}
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {
-                medicines.map((medicine) => (
+                filteredMedicines.map((medicine) => (
                   <div key={medicine._id} className="bg-white rounded-2xl shadow-md p-5">
                     <div className="flex items-center gap-2 mb-3">
                       <GiMedicines className="text-blue-500 text-xl" />
-                      <h3 className="font-bold text-lg">{medicine.name}</h3>
+                      <h3 className="font-bold text-lg"><Highlight text={medicine.name} query={search} /></h3>
                     </div>
                     <p className="text-sm text-slate-600 mb-2">
                       <span className="font-medium">
                         Purpose:
-                      </span>{" "}
-                      {medicine.purpose}
+                      </span>
+                      <Highlight text={medicine.purpose} query={search} />
                     </p>
+        
                     <p className="text-sm text-slate-600">
                       <span className="font-medium">
                         Notes:
-                      </span>{" "}
-                      {medicine.notes}
+                      </span>
+                      <Highlight text={medicine.notes} query={search} />
                     </p>
                     <div className="mt-4 flex gap-2">
                       <button onClick={() => {

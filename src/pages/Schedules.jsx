@@ -6,6 +6,8 @@ import ScheduleForm from "../components/ScheduleForm";
 import {getSchedules,addSchedule,deleteSchedule,updateSchedule} from "../services/scheduleService";
 import { getMedicines } from "../services/medicineService";
 import { IoCloseCircleOutline } from "react-icons/io5";
+import Highlight from "../components/Highlight";
+
 
 function Schedules() {
   const [schedules, setSchedules] = useState([]);
@@ -13,6 +15,8 @@ function Schedules() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingSchedule, setEditingSchedule] =useState(null);
+  const [search, setSearch] = useState("");
+
   const fetchSchedules = async () => {
     try {
       const data = await getSchedules();
@@ -83,6 +87,20 @@ function Schedules() {
     }
 };
   const activeSchedules = schedules.filter(schedule => schedule.isActive).length;
+  const filteredSchedules = schedules.filter((schedule) => {
+  const query = search.toLowerCase();
+
+  return (
+    schedule.medicineId?.name?.toLowerCase().includes(query) ||
+    schedule.dosage?.toLowerCase().includes(query) ||
+    schedule.frequency?.toLowerCase().includes(query) ||
+    schedule.times?.some((time) =>
+      time.toLowerCase().includes(query)
+    ) ||
+    (schedule.isActive ? "active" : "inactive")
+      .includes(query)
+  );
+});
   
   return (
     <DashboardLayout>
@@ -91,6 +109,16 @@ function Schedules() {
         subtitle="Manage medication schedules."
         showSearch={true}
         searchPlaceholder="Search schedules..."
+        searchValue={search}
+        onSearchChange={setSearch}
+        resultCount={
+         search
+           ? {
+            filtered: filteredSchedules.length,
+            total: schedules.length,
+           }
+          : null
+        }
         actionButton={
           <button onClick={() => {
             setEditingSchedule(null);
@@ -170,24 +198,17 @@ function Schedules() {
 
             <p>Loading schedules...</p>
 
-          ) : schedules.length === 0 ? (
+          ) : filteredSchedules.length === 0 ? (
 
-            <div className="
-              bg-white
-              rounded-2xl
-              p-8
-              shadow-sm
-            ">
-
-              No schedules created yet.
-
+            <div className=" bg-white rounded-2xl p-8 shadow-sm">
+              {search ? "No matching schedules found." : "No schedules created yet."}
             </div>
 
           ) : (
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {
-                schedules.map(schedule => (
+                filteredSchedules.map(schedule => (
                   <div
                     key={schedule._id}
                     className="
@@ -195,18 +216,18 @@ function Schedules() {
                       rounded-3xl
                       p-6 shadow-sm">
                     <h3 className="text-xl font-bold">
-                      {schedule.medicineId?.name}
+                      <Highlight text={schedule.medicineId?.name} query={search}/>
                     </h3>
                     <p className="mt-3">
                       Dosage:
                       <span className="ml-2 font-medium">
-                        {schedule.dosage}
+                        <Highlight text={schedule.dosage} query={search}/>
                       </span>
                     </p>
                     <p>
                       Frequency:
                       <span className="ml-2 capitalize font-medium">
-                        {schedule.frequency}
+                        <Highlight text={schedule.frequency} query={search}/>
                       </span>
                     </p>
                     <div className="flex flex-wrap gap-2 mt-4">
@@ -214,17 +235,8 @@ function Schedules() {
                         schedule.times.map((time, index) => (
 
                           <span
-                            key={index}
-                            className="
-                              bg-blue-100
-                              text-blue-600
-                              px-3
-                              py-1
-                              rounded-full
-                              text-sm
-                            "
-                          >
-                            {time}
+                            key={index} className=" bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm">
+                            <Highlight text={time} query={search} />
                           </span>
 
                         ))
@@ -258,13 +270,8 @@ function Schedules() {
                               ? "bg-green-100 text-green-600"
                               : "bg-red-100 text-red-600"
                           }
-                        `}
-                      >
-                        {
-                          schedule.isActive
-                            ? "Active"
-                            : "Inactive"
-                        }
+                        `}>
+                        <Highlight text={schedule.isActive? "Active": "Inactive"}query={search}/>
                       </span>
 
                     </div>

@@ -27,3 +27,12 @@ export const updateSchedule = async (
 
   return response.data;
 };
+
+export const snoozeReminder = async (scheduleId, minutes = 10) => {
+  const response = await api.post("/schedule/snooze", {
+    scheduleId,
+    minutes,
+  });
+
+  return response.data;
+};

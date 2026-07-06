@@ -8,14 +8,23 @@ import {
   FiCheckCircle,
   FiXCircle
 } from "react-icons/fi";
+import { useSearchParams } from "react-router-dom";
+import ReminderPopup from "../components/ReminderPopup";
 import { GiMedicines } from "react-icons/gi";
 import PageHeader from "../components/PageHeader";
+import { addDoseLog } from "../services/doseLogService";
+import { snoozeReminder } from "../services/scheduleService";
 
 function Dashboard() {
 
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
 
+  const scheduleId = searchParams.get("scheduleId");
+  const [showReminderPopup, setShowReminderPopup] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
+  
   const stats = dashboardData?.stats;
   const todaySchedules = dashboardData?.todaySchedules || [];
 
@@ -41,6 +50,22 @@ function Dashboard() {
     fetchDashboard();
   }, []);
 
+  useEffect(() => {
+
+    if (!scheduleId || todaySchedules.length === 0)
+        return;
+
+    const schedule = todaySchedules.find(
+        item => item._id === scheduleId
+    );
+
+    if (schedule) {
+        setSelectedSchedule(schedule);
+        setShowReminderPopup(true);
+    }
+
+  }, [scheduleId, todaySchedules]);
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -49,7 +74,64 @@ function Dashboard() {
     );
   }
 
+  const handleTaken = async () => {
+    try {
+        await addDoseLog({
+            scheduleId: selectedSchedule._id,
+            status: "taken"
+        });
+        alert("Dose logged successfully!");
+        setShowReminderPopup(false);
+        fetchDashboard();
+    } catch (err) {
+        console.log(err);
+    }
+  };
+  const handleMissed = async () => {
+    try{
+        await addDoseLog({
+          scheduleId: selectedSchedule._id,
+            status: "missed"
+        });
+        alert("Dose marked as missed!");
+        setShowReminderPopup(false);
+        fetchDashboard();
+    }
+    catch(err){
+      console.log(err);
+    }
+  };
+  const handleSnooze = async () => {
+    try{
+      await snoozeReminder(
+        selectedSchedule._id,
+        10
+      );
+      alert("Reminder snoozed for 10 minutes!");
+      setShowReminderPopup(false);
+      setSearchParams({});
+    }
+    catch(err){
+      console.log(err);
+    }
+  };
+
   return (
+
+    <>
+
+    {showReminderPopup && (
+      <ReminderPopup
+        schedule={selectedSchedule}
+        onTaken={handleTaken}
+        onMissed={handleMissed}
+        onSnooze={handleSnooze}   
+        onClose = {() => {
+          setShowReminderPopup(false);
+          setSearchParams({});
+        }}
+      />
+    )}
     <DashboardLayout>
       <PageHeader
         title={getGreeting()}
@@ -171,6 +253,7 @@ function Dashboard() {
     </div>
 
     </DashboardLayout>
+    </>
   );
 }
 
