@@ -7,7 +7,7 @@ import {
   FiFileText,
   FiLogOut
 } from "react-icons/fi";
-
+import { FiMessageSquare } from "react-icons/fi";
 import { FaHeartbeat } from "react-icons/fa";
 import { GiMedicines } from "react-icons/gi";
 import { FaNotesMedical } from "react-icons/fa";
@@ -90,17 +90,17 @@ function Sidebar() {
           Dose Logs
         </NavLink>
 
+        <NavLink to="/symptoms" className={navLinkClass}><FaNotesMedical size={20} />Symptoms</NavLink>
         <NavLink
-  to="/symptoms"
-  className={navLinkClass}
->
-  <FaNotesMedical size={20} />
-  Symptoms
-</NavLink>
+          to="/assistant"
+          className={navLinkClass}>
+          <FiMessageSquare size={20} />
+          AI Assistant
+        </NavLink>
+
         <NavLink
           to="/profile"
-          className={navLinkClass}
-        >
+          className={navLinkClass}>
           <FiUser size={20} />
           Profile
         </NavLink>
@@ -111,17 +111,13 @@ function Sidebar() {
 
       <div
         className="px-6 py-6 mt-auto">
-
         <button
           className="flex items-center gap-3 text-red-500 hover:text-red-600 transition text-lg">
           <FiLogOut />
-
           Logout
-
         </button>
-
       </div>
-
+      
     </aside>
   );
 }
