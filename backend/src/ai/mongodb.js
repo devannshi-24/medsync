@@ -29,3 +29,11 @@ export async function getCheckpointer() {
 
   return checkpointer;
 }
+
+export async function deleteConversation(threadId) {
+  const checkpointer = await getCheckpointer();
+
+  await checkpointer.deleteThread(threadId);
+
+  console.log(`Conversation deleted for thread: ${threadId}`);
+}
