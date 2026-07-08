@@ -2,7 +2,7 @@ import React from 'react'
 import {Routes, Route} from 'react-router-dom'
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
-
+import Assistant from "./pages/Assistant";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Medicines from "./pages/Medicines";
@@ -19,14 +19,14 @@ function App() {
 
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
+        <Route path="/assistant" element={ <ProtectedRoute><Assistant /></ProtectedRoute>}/>
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/medicines" element={<ProtectedRoute><Medicines /></ProtectedRoute>} />
         <Route path="/schedules" element={<ProtectedRoute><Schedules /></ProtectedRoute>} />
         <Route path="/symptoms"element={<ProtectedRoute><Symptoms /></ProtectedRoute>}/>
         <Route path="/doselogs" element={<ProtectedRoute><Doselogs /></ProtectedRoute>} />
-        <Route path="/forgot-password" element={<ProtectedRoute><ForgotPassword /></ProtectedRoute>} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
   );
 } 

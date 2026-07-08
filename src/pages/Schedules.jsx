@@ -147,11 +147,9 @@ function Schedules() {
         </div>
         {/* Modal */}
         {
-  showModal && (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-
-      <div className="bg-white w-full max-w-xl rounded-3xl p-6 relative shadow-xl">
-
+     showModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        <div className="bg-white w-full max-w-xl rounded-3xl p-6 relative shadow-xl">
         <button
           onClick={() => {
             setShowModal(false);
@@ -174,18 +172,12 @@ function Schedules() {
               ? handleUpdateSchedule
               : handleAddSchedule
           }
-          buttonText={
-            editingSchedule
-              ? "Update Schedule"
-              : "Save Schedule"
-          }
+          buttonText={editingSchedule? "Update Schedule": "Save Schedule"}
         />
+        </div>
 
-      </div>
-
-    </div>
-  )
-}
+        </div>
+      )}
 
         {/* Schedule Cards */}
 
@@ -195,26 +187,18 @@ function Schedules() {
 
         {
           loading ? (
-
             <p>Loading schedules...</p>
-
           ) : filteredSchedules.length === 0 ? (
-
             <div className=" bg-white rounded-2xl p-8 shadow-sm">
               {search ? "No matching schedules found." : "No schedules created yet."}
             </div>
-
           ) : (
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {
                 filteredSchedules.map(schedule => (
                   <div
                     key={schedule._id}
-                    className="
-                      bg-white
-                      rounded-3xl
-                      p-6 shadow-sm">
+                    className=" bg-white rounded-3xl p-6 shadow-sm">
                     <h3 className="text-xl font-bold">
                       <Highlight text={schedule.medicineId?.name} query={search}/>
                     </h3>
@@ -260,69 +244,20 @@ function Schedules() {
                     </div>
                     <div className="mt-5">
                       <span
-                        className={`
-                          px-3
-                          py-1
-                          rounded-full
-                          text-sm
-                          ${
-                            schedule.isActive
-                              ? "bg-green-100 text-green-600"
-                              : "bg-red-100 text-red-600"
-                          }
-                        `}>
+                        className={`px-3 py-1 rounded-full text-sm ${schedule.isActive? "bg-green-100 text-green-600": "bg-red-100 text-red-600"}`}>
                         <Highlight text={schedule.isActive? "Active": "Inactive"}query={search}/>
                       </span>
 
                     </div>
 
                     <div className="mt-5 flex gap-2">
-
-  <button
-    onClick={() => {
-
-      setEditingSchedule(schedule);
-
-      setShowModal(true);
-
-    }}
-    className="
-      bg-blue-500
-      hover:bg-blue-600
-      text-white
-      px-4
-      py-2
-      rounded-lg
-    "
-  >
-    Edit
-  </button>
-
-  <button
-    onClick={() =>
-      handleDeleteSchedule(schedule._id)
-    }
-    className="
-      bg-red-500
-      hover:bg-red-600
-      text-white
-      px-4
-      py-2
-      rounded-lg
-    "
-  >
-    Delete
-  </button>
-
-</div>
-
+                      <button onClick={() => {setEditingSchedule(schedule); setShowModal(true);}}className=" bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">Edit</button>
+                      <button onClick={() =>handleDeleteSchedule(schedule._id)}className=" bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">Delete</button>
+                    </div>
                   </div>
-
                 ))
               }
-
             </div>
-
           )
         }
 

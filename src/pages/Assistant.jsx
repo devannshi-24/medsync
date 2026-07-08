@@ -4,12 +4,14 @@ import { FaHeartbeat } from "react-icons/fa";
 import DashboardLayout from "../components/DashboardLayout";
 import WelcomeScreen from "../components/assistant/WelcomeScreen";
 import ChatWindow from "../components/assistant/ChatWindow";
-import { sendMessage } from "../services/assistantService";
+import ConfirmModal from "../components/assistant/ConfirmModal";
+import { sendMessage,startNewChat } from "../services/assistantService";
 
 function Assistant() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const handleSend = async (text) => {
     if (!text.trim()) return;
@@ -30,11 +32,13 @@ function Assistant() {
     catch (error) {
       setMessages(prev => {
        const withoutTyping = prev.filter(message => !message.typing);
+       const errorMessage =
+       error.response?.data?.message || "Sorry, I couldn't generate a response right now.";
        return [
         ...withoutTyping,
         {
             role: "assistant",
-            content: "Sorry, I couldn't generate a response right now.",
+            content: errorMessage,
         },
        ];
       });
@@ -45,6 +49,17 @@ function Assistant() {
   const handleSubmit = (e) => {
     e.preventDefault();
     handleSend(input);
+  };
+
+  const handleNewChat = async () => {
+    try {
+      await startNewChat();
+      setMessages([]);
+      setInput("");
+      setShowModal(false);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -65,7 +80,7 @@ function Assistant() {
 
           {messages.length > 0 && (
             <button
-              onClick={() => setMessages([])}
+              onClick={() => setShowModal(true)}
               className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-6 py-3 shadow-md rounded-full transition"
             >
               <FiPlus size={15} />
@@ -112,6 +127,14 @@ function Assistant() {
         </div>
 
       </div>
+
+      <ConfirmModal
+        open={showModal}
+        title="Start New Chat?"
+        description="Your current conversation will be cleared permanently."
+        onCancel={() => setShowModal(false)}
+        onConfirm={handleNewChat}s
+      />
     </DashboardLayout>
   );
 }
