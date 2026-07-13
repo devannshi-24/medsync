@@ -424,3 +424,69 @@ export const resetPassword = async (req, res) => {
     });
   }
 };
+
+export const changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({
+        message: "Old password and new password are required",
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        message: "Password must be at least 6 characters long",
+      });
+    }
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    // Google-only account
+    if (!user.password) {
+      return res.status(400).json({
+        message: "This account uses Google Sign-In and does not have a password.",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Current password is incorrect",
+      });
+    }
+
+    // Prevent reusing the same password
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+
+    if (isSamePassword) {
+      return res.status(400).json({
+        message: "New password cannot be the same as the current password",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Password changed successfully",
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error changing password",
+      error: error.message,
+    });
+  }
+};

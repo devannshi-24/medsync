@@ -8,14 +8,24 @@ const profileSchema =new mongoose.Schema({
         unique:true
     },
     age:{
-        type:Number,      
+        type:Number,     
+        min:0,
+        max:150, 
     },
     gender:{
         type:String,
         enum:["male","female","other"]
     },
-    weight:Number,
-    height:Number,
+    weight:{
+        type:Number,
+        min:1,
+        max:500,
+    },
+    height:{
+        type:Number,
+        min:30,
+        max:300,
+    },
     chronicConditions:[String],
     allergies:[String],
     timezone:{

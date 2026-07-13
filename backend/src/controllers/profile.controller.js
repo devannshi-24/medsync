@@ -1,42 +1,67 @@
-import Profile from "../models/profile.model.js"
+import Profile from "../models/profile.model.js";
 
-export const getProfile= async (req,res)=>{
-    try{
-        const profile= await Profile.findOne({userId: req.user._id})
+export const getProfile = async (req, res) => {
+  try {
+    const profile = await Profile.findOne({ userId: req.user._id });
 
-        if(!profile){
-            return res.status(404).json({message:"Profile not found"})
-        }
+    return res.status(200).json({
+      user: {
+        name: req.user.name,
+        email: req.user.email,
+        isVerified: req.user.isVerified,
+        hasPassword: !!req.user.password,
+        hasGoogle: !!req.user.googleId,
+      },
+      profile,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: "Cannot fetch profile",
+      error: err.message,
+    });
+  }
+};
 
-        res.status(200).json({profile, message:"Profile fetched successfully"})
+export const updateProfile = async (req, res) => {
+  try {
+    const {
+      age,
+      gender,
+      weight,
+      height,
+      chronicConditions,
+      allergies,
+      timezone,
+    } = req.body;
 
-    }catch(err){
-        res.status(500).json({message:"cannot fetch profile",error:err.message})
-    }
-}
+    const profile = await Profile.findOneAndUpdate(
+      { userId: req.user._id },
+      {
+        $set: {
+          age,
+          gender,
+          weight,
+          height,
+          chronicConditions,
+          allergies,
+          timezone,
+        },
+      },
+      {
+        new: true,
+        upsert: true,
+        runValidators: true,
+      },
+    );
 
-export const updateProfile= async(req,res)=>{
-    try{
-        const user = req.user
-        const {age,gender,weight,height,chronicConditions,allergies}= req.body;
-        
-        const profile = await Profile.findOneAndUpdate({userId: user._id},{
-            $set:{
-                age,
-                gender,
-                weight,
-                height,
-                chronicConditions,
-                allergies
-            }
-        },{new:true})
-
-        if(!profile){
-            return res.status(404).json({message:"Profile not found"})
-        }
-        res.status(200).json({profile,message:"Profile updated successfully"})
-
-    }catch(err){
-        res.status(500).json({message:"Cannot update profile",error:err.message})
-    }
-}
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      profile,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: "Cannot update profile",
+      error: err.message,
+    });
+  }
+};
