@@ -1,4 +1,4 @@
-# 💊 MediSync – AI Powered Medication Management System
+# 💊 MedSync – AI Powered Medication Management System
 
 MediSync is a full-stack MERN application designed to simplify medication management through intelligent reminders, adherence tracking, and an AI-powered healthcare assistant.
 
