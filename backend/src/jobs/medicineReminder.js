@@ -57,7 +57,7 @@ const startMedicineReminderJob = () => {
 Dosage: ${schedule.dosage}
 Scheduled: ${schedule.times.join(", ")}
 
-Please take your medicine and update your dose status in MediSync.`,
+Please take your medicine and update your dose status in MedSync.`,
           {
             scheduleId: schedule._id.toString(),
           },

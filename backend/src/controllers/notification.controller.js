@@ -18,7 +18,7 @@ export const sendTestNotification = async (req, res) => {
 
         const response = await sendNotification(
             device.fcmToken,
-            "MediSync",
+            "MedSync",
             "🎉 Your first push notification!",
             {
                 scheduleId:"test123"

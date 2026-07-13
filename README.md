@@ -1,6 +1,6 @@
 # 💊 MedSync – AI Powered Medication Management System
 
-MediSync is a full-stack MERN application designed to simplify medication management through intelligent reminders, adherence tracking, and an AI-powered healthcare assistant.
+MedSync is a full-stack MERN application designed to simplify medication management through intelligent reminders, adherence tracking, and an AI-powered healthcare assistant.
 
 The platform enables users to manage medicines, schedules, dose history, and symptoms while receiving timely medication reminders and personalized assistance through an AI chatbot with persistent conversation memory.
 
@@ -205,7 +205,7 @@ Built using **LangGraph**, **LangChain**, and **Groq LLM**.
 # 📂 Project Structure
 
 ```text
-MediSync
+MedSync
 │
 ├── frontend
 │   ├── assets
@@ -280,7 +280,7 @@ Firebase Cloud Messaging
 Browser Notification
         │
         ▼
-User Opens MediSync
+User Opens MedSync
         │
         ▼
 Today's Medicines
@@ -329,7 +329,7 @@ Dashboard Analytics Updated
 ## Clone Repository
 
 ```bash
-git clone https://github.com/your-username/medisync.git
+git clone https://github.com/your-username/medsync.git
 ```
 
 ---
