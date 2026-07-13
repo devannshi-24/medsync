@@ -6,7 +6,7 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 import {getMedicines,addMedicine,deleteMedicine,updateMedicine} from "../services/medicineService";
 import toast from "react-hot-toast";
 import { GiMedicines } from "react-icons/gi";
-
+import DeleteConfirmModal from "../components/DeleteConfirmModal";
 import Highlight from "../components/Highlight";
 
 function Medicines() {
@@ -16,6 +16,7 @@ function Medicines() {
   const [showModal, setShowModal] = useState(false);
   const [editingMedicine, setEditingMedicine] = useState(null);
   const [search, setSearch] = useState("");
+  const [deleteId, setDeleteId] = useState(null);
 
   const fetchMedicines = async () => {
     try {
@@ -48,18 +49,11 @@ function Medicines() {
   };
   const handleUpdateMedicine = async (formData) => {
   try {
-
-    const data = await updateMedicine(
-      editingMedicine._id,
-      formData
-    );
+    const data = await updateMedicine(editingMedicine._id,formData);
     console.log(editingMedicine);
     toast.success(data.message);
-
     setEditingMedicine(null);
-
     setShowModal(false);
-
     fetchMedicines();
 
   } catch (error) {
@@ -73,12 +67,12 @@ function Medicines() {
   }
 };
 
-  const handleDeleteMedicine = async (id) => {
-    const confirmDelete = window.confirm("This will archive the medicine and deactivate related schedules. Continue?");
-    if (!confirmDelete) return;
+  const handleDeleteMedicine = async () => {
+    
     try {
-      const data = await deleteMedicine(id);
+      const data = await deleteMedicine(deleteId);
       toast.success(data.message);
+      setDeleteId(null);
       fetchMedicines();
     } catch (error) {
       console.log(error);
@@ -121,11 +115,7 @@ function Medicines() {
             <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
               <div className="bg-white w-full max-w-xl rounded-3xl p-6 relative shadow-xl">
                 <button onClick={() => setShowModal(false)} className="absolute top-5 right-5 text-slate-500 hover:text-red-500"><IoCloseCircleOutline size={22} /></button>
-                <h2 className="text-2xl font-bold mb-6">{
-    editingMedicine
-      ? "Edit Medicine"
-      : "Add Medicine"
-  }</h2>
+                <h2 className="text-2xl font-bold mb-6">{editingMedicine? "Edit Medicine": "Add Medicine"}</h2>
                 <MedicineForm initialData={editingMedicine}
                 onSubmit={editingMedicine? handleUpdateMedicine: handleAddMedicine}
                 buttonText={editingMedicine? "Update Medicine": "Save Medicine"}/>
@@ -170,7 +160,7 @@ function Medicines() {
                       <button onClick={() => {
                         setEditingMedicine(medicine);
                         setShowModal(true);}}className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">Edit</button>
-                        <button onClick={() =>handleDeleteMedicine(medicine._id)}className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">Delete</button>
+                        <button onClick={() => setDeleteId(medicine._id)}className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">Delete</button>
                     </div>
                   </div>
                 ))
@@ -180,6 +170,12 @@ function Medicines() {
         }
       </div>
 
+      <DeleteConfirmModal
+        open={!!deleteId}
+        title="Delete Medicine"
+        message="This medicine will be archived and all related schedules will be deactivated. Do you want to continue?"
+        onCancel={() => setDeleteId(null)}
+        onConfirm={handleDeleteMedicine}/>
     </DashboardLayout>
   );
 }

@@ -11,8 +11,8 @@ export const addSchedule = async (scheduleData) => {
 };
 
 export const deleteSchedule = async (id) => {
-  const response = await api.delete(`/schedule/${id}`);
-  return response.data;
+  const {data} = await api.delete(`/schedule/${id}`);
+  return data;
 };
 
 export const updateSchedule = async (

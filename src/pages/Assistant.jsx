@@ -73,7 +73,7 @@ function Assistant() {
               <FaHeartbeat className="text-white text-base" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-slate-800 leading-tight">Med-Core AI</h1>
+              <h1 className="text-lg font-bold text-slate-800 leading-tight">MedSync AI</h1>
               <p className="text-xs text-slate-400">Your Personal Health Assistant</p>
             </div>
           </div>
@@ -109,12 +109,12 @@ function Assistant() {
             onSubmit={handleSubmit}
             className="max-w-4xl mx-auto flex items-center gap-3"
           >
-            <textarea rows={1} value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask Med-Core AI anything..." className="flex-1 resize-none rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition"onInput={(e) => {e.target.style.height = "auto"; e.target.style.height = `${e.target.scrollHeight}px`;}}
+            <textarea rows={1} value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask MedSync AI anything..." className="flex-1 resize-none rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition"onInput={(e) => {e.target.style.height = "auto"; e.target.style.height = `${e.target.scrollHeight}px`;}}
               onKeyDown={(e) => {
                  if (e.key === "Enter" && !e.shiftKey) {
                  e.preventDefault(); handleSubmit(e);}}}
               disabled={loading}
-              placeholder={loading ? "Med-Core AI is thinking..." : "Ask Med-Core AI anything..."}
+              placeholder={loading ? "MedSync AI is thinking..." : "Ask MedSync AI anything..."}
             />
             <button
               type="submit"

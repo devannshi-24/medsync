@@ -2,12 +2,7 @@ import { useEffect, useState } from "react";
 import DashboardLayout from "../components/DashboardLayout";
 import StatCard from "../components/StatCard";
 import { getDashboardData } from "../services/dashboardService";
-import {
-  FiActivity,
-  FiCalendar,
-  FiCheckCircle,
-  FiXCircle
-} from "react-icons/fi";
+import {FiActivity,FiCalendar,FiClock,FiCheckCircle,  FiXCircle} from "react-icons/fi";
 import { useSearchParams } from "react-router-dom";
 import ReminderPopup from "../components/ReminderPopup";
 import { GiMedicines } from "react-icons/gi";
@@ -27,6 +22,7 @@ function Dashboard() {
   
   const stats = dashboardData?.stats;
   const todaySchedules = dashboardData?.todaySchedules || [];
+  const recentActivity = dashboardData?.recentActivity || [];
 
   const fetchDashboard = async () => {
     try {
@@ -40,8 +36,8 @@ function Dashboard() {
   };
   const getGreeting = () => {
     const hour = new Date().getHours(); // 0-23
-    if (hour < 12) return "Good Morning 🌅";
-    if (hour < 17) return "Good Afternoon ☀️";
+    if (hour < 12) return "Good Morning  ☀️";
+    if (hour < 17) return "Good Afternoon 🌤️";
     if (hour < 21) return "Good Evening 🌆";
     return "Good Night 🌙";
   };
@@ -136,14 +132,9 @@ function Dashboard() {
       <PageHeader
         title={getGreeting()}
         subtitle="Here's how your health is tracking today."
-        showSearch={true}
-        searchPlaceholder="Search medicines..."
-        actionButton={
-          <button className="bg-blue-600 text-white px-5 py-3 rounded-xl">
-            Log Dose
-          </button>
-        }
+        
       />
+      <div className="p-6 pb-12 space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
 
         <StatCard
@@ -151,6 +142,7 @@ function Dashboard() {
           value={stats?.totalMedicines}
           icon={<GiMedicines />}
           subtitle="Registered medicines"
+          color="blue"
         />
 
         <StatCard
@@ -158,6 +150,7 @@ function Dashboard() {
           value={stats?.activeSchedules}
           icon={<FiCalendar />}
           subtitle="Currently active"
+          color="purple"
         />
 
         <StatCard
@@ -165,6 +158,7 @@ function Dashboard() {
           value={stats?.takenDoses}
           icon={<FiCheckCircle />}
           subtitle="Successfully logged"
+          color="green"
         />
 
         <StatCard
@@ -172,6 +166,7 @@ function Dashboard() {
           value={stats?.missedDoses}
           icon={<FiXCircle />}
           subtitle="Needs attention"
+          color="red"
         />
 
         <StatCard
@@ -179,6 +174,7 @@ function Dashboard() {
           value={`${stats?.adherenceScore}%`}
           icon={<FiActivity />}
           subtitle="Medication compliance"
+          color="yellow"
         />
 
       </div>
@@ -208,50 +204,172 @@ function Dashboard() {
 
             <div
               key={index}
-              className="bg-white rounded-2xl shadow-md p-5 hover:shadow-lg transition"
+              className="bg-white rounded-2xl shadow-md border border-slate-100 p-4 hover:shadow-md hover:border-blue-100 transition-all"
             >
-
-              <h3 className="text-lg font-semibold text-slate-800">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <h3 className="text-base font-bold text-slate-800">
                 {schedule.medicine}
               </h3>
-
-              <p className="text-slate-500 mt-1">
-                {schedule.dosage}
-              </p>
-
-              <p className="text-sm text-blue-500 mt-2 capitalize">
+              <span className="shrink-0 text-xs font-medium text-blue-500 bg-blue-50 px-2.5 py-0.5 rounded-full capitalize">
                 {schedule.frequency}
-              </p>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-
-                {
-                  schedule.times.map((time, i) => (
-
-                    <span
-                      key={i}
-                      className="px-3 py-1 rounded-full bg-blue-100 text-blue-600 text-sm"
-                    >
-                      {time}
-                    </span>
-
-                  ))
-                }
-
-              </div>
-
+              </span>
             </div>
 
-           ))
-          }
-
+              <p className="text-sm text-slate-400 mb-3">
+                💊 {schedule.dosage}
+              </p>
+              <div className="flex items-center gap-1.5 flex-wrap">
+               <FiClock className="text-blue-400 text-xs shrink-0" />
+                {schedule.times.map((time, i) => (
+                <span key={i} className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-600 text-xs font-medium">
+                  {time}
+                </span>
+                ))}
+               </div>
+            </div>
+           ))}
         </div>
+      )}
+    </div>
+     <div>
+            <div className="flex items-center gap-2 mb-4 mt-8">
+              <h2 className="text-2xl font-bold text-slate-800">
+                Recent Activity
+              </h2>
+            </div>
+ 
+            {recentActivity.length === 0 ? (
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                <p className="text-slate-400 text-sm">No recent activity yet.</p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                {recentActivity
+                  .filter((activity) => activity.medicine)
+                  .map((activity, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 last:border-b-0 hover:bg-slate-50 transition"
+                  >
+                    {/* Left: dot + medicine name */}
+                    <div className="flex items-center gap-3">
+                      <span className={`w-2 h-2 rounded-full shrink-0 ${
+                        activity.status === "taken" ? "bg-green-500" : "bg-red-400"
+                      }`} />
+                      <span className="text-sm font-medium text-slate-700">
+                        {activity.medicine}
+                      </span>
+                    </div>
+ 
+                    {/* Middle: status badge */}
+                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                      activity.status === "taken"
+                        ? "bg-green-100 text-green-600"
+                        : "bg-red-100 text-red-500"
+                    }`}>
+                      {activity.status === "taken" ? "Taken" : "Missed"}
+                    </span>
+ 
+                    {/* Right: date + time */}
+                    <div className="text-right">
+                      <p className="text-xs text-slate-500">
+                        {new Date(activity.loggedAt).toLocaleDateString()}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        {new Date(activity.loggedAt).toLocaleTimeString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+    {/* ── Weekly Stats ── */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold text-slate-800 mb-4">Weekly Overview</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-      )
-      }
+             {/* Taken */}
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-5 py-4">
+                <div className="flex items-center justify-between mb-3">
+                 <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Taken this week</p>
+                  <div className="w-8 h-8 rounded-xl bg-green-50 flex items-center justify-center">
+                    <FiCheckCircle className="text-green-500 text-sm" />
+                  </div>
+                </div>
+                <p className="text-3xl font-bold text-green-600">
+                  {dashboardData?.weeklyStats?.weeklyTakenDoses}
+                </p>
+                <div className="w-full h-1.5 bg-slate-100 rounded-full mt-3 overflow-hidden">
+                  <div
+                   className="h-full bg-green-400 rounded-full transition-all duration-500"
+                   style={{
+                    width: `${dashboardData?.weeklyStats?.weeklyAdherenceScore}%`
+                  }}/>
+              </div>
+            </div>
 
+    {/* Missed */}
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-5 py-4">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Missed this week</p>
+        <div className="w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center">
+          <FiXCircle className="text-red-400 text-sm" />
+        </div>
+      </div>
+      <p className="text-3xl font-bold text-red-500">
+        {dashboardData?.weeklyStats?.weeklyMissedDoses}
+      </p>
+      <div className="w-full h-1.5 bg-slate-100 rounded-full mt-3 overflow-hidden">
+        <div
+          className="h-full bg-red-400 rounded-full transition-all duration-500"
+          style={{
+            width: `${
+              dashboardData?.weeklyStats?.weeklyTakenDoses +
+              dashboardData?.weeklyStats?.weeklyMissedDoses === 0
+                ? 0
+                : Math.round(
+                    (dashboardData?.weeklyStats?.weeklyMissedDoses /
+                      (dashboardData?.weeklyStats?.weeklyTakenDoses +
+                        dashboardData?.weeklyStats?.weeklyMissedDoses)) *
+                      100
+                  )
+            }%`
+          }}
+        />
+      </div>
     </div>
 
+    {/* Weekly Adherence */}
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-5 py-4">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Weekly adherence</p>
+        <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
+          <FiActivity className="text-blue-500 text-sm" />
+        </div>
+      </div>
+      <p className="text-3xl font-bold text-blue-600">
+        {dashboardData?.weeklyStats?.weeklyAdherenceScore}%
+      </p>
+      <div className="w-full h-1.5 bg-slate-100 rounded-full mt-3 overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all duration-500 ${
+            dashboardData?.weeklyStats?.weeklyAdherenceScore >= 80
+              ? "bg-green-400"
+              : dashboardData?.weeklyStats?.weeklyAdherenceScore >= 50
+              ? "bg-yellow-400"
+              : "bg-red-400"
+          }`}
+          style={{
+            width: `${dashboardData?.weeklyStats?.weeklyAdherenceScore}%`
+          }}
+        />
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
     </DashboardLayout>
     </>
   );

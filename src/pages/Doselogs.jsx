@@ -8,6 +8,7 @@ import {getDoseLogs,addDoseLog} from "../services/doselogService";
 import { getSchedules } from "../services/scheduleService";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import Highlight from "../components/Highlight";
+import { FiCheckCircle, FiXCircle, FiActivity, FiList } from "react-icons/fi";
 
 function Doselogs() {
   const [doseLogs, setDoseLogs] = useState([]);
@@ -99,25 +100,53 @@ function Doselogs() {
       />
       
       <div className="p-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-2xl p-6 shadow-sm">
-            <h3 className="text-slate-500 text-sm">
-              Total Logs
-            </h3>
-            <p className="text-4xl font-bold mt-2">{doseLogs.length}</p>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+
+          <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-slate-100 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
+             <FiList className="text-slate-500 text-lg" />
+           </div>
+            <div>
+               <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">Total Logs</p>
+               <p className="text-2xl font-bold text-slate-800 mt-0.5">{doseLogs.length}</p>
+           </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 shadow-sm">
-            <h3 className="text-slate-500 text-sm">Taken</h3>
-            <p className="text-4xl font-bold text-green-600 mt-2">{takenCount}</p>
+          <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-slate-100 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
+              <FiCheckCircle className="text-green-500 text-lg" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">Taken</p>
+              <p className="text-2xl font-bold text-green-600 mt-0.5">{takenCount}</p>
+            </div>
           </div>
-          <div className="bg-white rounded-2xl p-6 shadow-sm">
-            <h3 className="text-slate-500 text-sm">Missed</h3>
-            <p className="text-4xl font-bold text-red-600 mt-2">{missedCount}</p>
+
+          <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-slate-100 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
+              <FiXCircle className="text-red-400 text-lg" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">Missed</p>
+              <p className="text-2xl font-bold text-red-500 mt-0.5">{missedCount}</p>
+            </div>
           </div>
-          <div className="bg-white rounded-2xl p-6 shadow-sm">
-            <h3 className="text-slate-500 text-sm">Adherence</h3>
-            <p className="text-4xl font-bold text-blue-600 mt-2">{adherenceScore}%</p>
+
+          <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-slate-100 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+               <FiActivity className="text-blue-500 text-lg" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">Adherence</p>
+              <p className="text-4xl font-bold text-blue-600 mt-2">{adherenceScore}%</p>
+              <div className="w-full h-1.5 bg-slate-100 rounded-full mt-2 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${
+                  adherenceScore >= 80? "bg-green-400": adherenceScore >= 50? "bg-yellow-400": "bg-red-400"}`}
+                  style={{ width: `${adherenceScore}%` }}
+                />
+              </div>
+            </div>
           </div>
         </div>
         {
@@ -138,7 +167,7 @@ function Doselogs() {
        }
       
 
-        <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
 
   {
     loading ? (
@@ -155,14 +184,15 @@ function Doselogs() {
 
     ) : (
 
+    
       <table className="w-full">
 
-        <thead className="bg-slate-100">
-          <tr>
-            <th className="text-left p-4">Medicine</th>
-            <th className="text-left p-4">Dosage</th>
-            <th className="text-left p-4">Status</th>
-            <th className="text-left p-4">Logged At</th>
+        <thead>
+          <tr className="bg-sky-50 border-b border-slate-200">
+            <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Medicine</th>
+            <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Dosage</th>
+            <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
+            <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Logged At</th>
           </tr>
         </thead>
 
@@ -172,35 +202,30 @@ function Doselogs() {
 
             <tr
               key={log._id}
-              className="border-t"
+              className="border-t border-slate-100 hover:bg-slate-50 transition"
             >
 
-              <td className="p-4">
+              <td className="px-5 py-3.5 text-sm font-medium text-slate-800">
                 <Highlight text={log.medicineName} query={search}/>
               </td>
 
-              <td className="p-4">
+              <td className="px-5 py-3.5 text-sm text-slate-600">
                 <Highlight text={log.dosage} query={search}/>
               </td>
 
-              <td className="p-4">
-                <span
-                  className={`px-3 py-1 rounded-full text-sm ${
-                    log.status === "taken"
-                      ? "bg-green-100 text-green-600"
-                      : "bg-red-100 text-red-600"
-                  }`}
-                >
-                  <Highlight text={log.status} query={search}/>
-                </span>
+              <td className="px-5 py-3.5">
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
+                  log.status === "taken"? "bg-green-100 text-green-700": "bg-red-100 text-red-600"}`}>
+               <span className={`w-2 h-2 rounded-full shrink-0 ${log.status === "taken" ? "bg-green-500" : "bg-red-400"}`} />
+                  {log.status === "taken" ? "Taken" : "Missed"}
+               </span>
+             </td>
+
+              <td className="px-5 py-3.5">
+                <p className="text-sm text-slate-700">{new Date(log.loggedAt).toLocaleDateString()} </p>
+               <p className="text-xs text-slate-400 mt-0.5">{new Date(log.loggedAt).toLocaleTimeString()}</p>
               </td>
-
-              <td className="p-4">
-                <Highlight text={new Date(log.loggedAt).toLocaleString()} query={search}/>
-              </td>
-
-            </tr>
-
+          </tr>
           ))}
 
         </tbody>

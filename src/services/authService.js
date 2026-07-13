@@ -6,8 +6,8 @@ export const loginUser = async (userData) => {
 };
 
 export const logoutUser = async () => {
-  const response = await api.post("/auth/logout");
-  return response.data;
+  const {data} = await api.post("/auth/logout");
+  return data;
 };
 
 export const googleAuthService = async (token) => {
@@ -51,5 +51,14 @@ export const resetPassword = async (email, otp, newPassword) => {
     otp,
     newPassword,
   });
+  return response.data;
+};
+
+export const changePassword = async (passwordData) => {
+  const response = await api.post(
+    "/auth/change-password",
+    passwordData
+  );
+
   return response.data;
 };

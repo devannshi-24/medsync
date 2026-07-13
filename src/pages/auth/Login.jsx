@@ -106,7 +106,7 @@ function Login() {
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
             <FaHeartbeat className="text-white text-base" />
           </div>
-          <span className="font-bold text-lg text-slate-800 tracking-tight">Med-Core</span>
+          <span className="font-bold text-lg text-slate-800 tracking-tight">MedSync</span>
         </div>
 
         <h1 className="text-3xl font-bold text-slate-900 mb-1">Welcome back</h1>
@@ -194,13 +194,13 @@ function Login() {
         </form>
 
         <p className="text-center text-sm text-slate-500 mt-5">
-          New to Med-Core?{" "}
+          New to MedSync?{" "}
           <Link to="/register" className="text-blue-500 font-semibold hover:underline">
             Create an account
           </Link>
         </p>
         <p className="text-center text-xs text-slate-400 mt-3">
-          © 2026 Med-Core. Your data, encrypted &amp; private.
+          © 2026 MedSync. Your data, encrypted &amp; private.
         </p>
       </div>
 

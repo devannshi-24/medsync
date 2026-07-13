@@ -92,7 +92,7 @@ function Register() {
       const data = await verifyOTP(formData.email, otpString);
       await initializeNotifications();
       toast.success(data.message || "Email verified! Welcome aboard 🎉");
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || "Invalid or expired OTP");

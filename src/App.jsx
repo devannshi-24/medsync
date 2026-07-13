@@ -11,10 +11,14 @@ import Doselogs from "./pages/Doselogs";
 import Symptoms from "./pages/Symptoms";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ProtectedRoute from './routes/ProtectedRoute';
+import { Toaster } from "react-hot-toast";
 
 function App() {
 
   return (
+    <>
+
+      <Toaster position="top-right" toastOptions={{duration: 3000,}}/>
       <Routes>
 
         <Route path="/" element={<Login />} />
@@ -28,6 +32,7 @@ function App() {
         <Route path="/doselogs" element={<ProtectedRoute><Doselogs /></ProtectedRoute>} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
+    </>
   );
 } 
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { FiCalendar, FiTrash2 } from "react-icons/fi";
-
+import DeleteConfirmModal from "../components/DeleteConfirmModal";
 import DashboardLayout from "../components/DashboardLayout";
 import Highlight from "../components/Highlight";
 import PageHeader from "../components/PageHeader";
@@ -18,6 +18,7 @@ function Symptoms() {
   const [symptoms, setSymptoms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [deleteId, setDeleteId] = useState(null);
 
   const fetchSymptoms = async () => {
     try {
@@ -49,12 +50,11 @@ function Symptoms() {
     }
   };
 
-  const handleDeleteSymptom = async (id) => {
-    const confirmDelete = window.confirm("Delete this symptom entry?");
-    if (!confirmDelete) return;
+  const handleDeleteSymptom = async () => {
     try {
-      const data = await deleteSymptom(id);
+      const data = await deleteSymptom(deleteId);
       toast.success(data.message);
+      setDeleteId(null);
       fetchSymptoms();
     } catch (error) {
       toast.error(
@@ -169,7 +169,7 @@ function Symptoms() {
                           {urgency.text}
                         </span>
                         <button
-                          onClick={() => handleDeleteSymptom(entry._id)}
+                          onClick={() => setDeleteId(entry._id)}
                           className="text-red-400 hover:text-red-600 transition p-1"
                         >
                           <FiTrash2 className="w-4 h-4" />
@@ -199,6 +199,12 @@ function Symptoms() {
           )}
         </div>
       </div>
+      <DeleteConfirmModal
+        open={!!deleteId}
+        title="Delete Symptom"
+        message="This symptom entry will be permanently deleted. Do you want to continue?"
+        onCancel={() => setDeleteId(null)}
+        onConfirm={handleDeleteSymptom}/>
     </DashboardLayout>
   );
 }

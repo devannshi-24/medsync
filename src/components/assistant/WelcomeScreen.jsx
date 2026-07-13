@@ -23,7 +23,7 @@ function WelcomeScreen({ onSuggestionClick }) {
 
       {/* Heading */}
       <h1 className="text-4xl font-bold text-slate-800 mb-3">
-        Hi, I'm Med-Core AI
+        Hi, I'm MedSync AI
       </h1>
       <p className="max-w-xl text-slate-500 text-base leading-relaxed mb-10">
         Ask me anything about your medicines, symptoms, side effects,
