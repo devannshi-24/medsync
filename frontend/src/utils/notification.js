@@ -4,7 +4,6 @@ import { registerDevice } from "../services/deviceService";
 
 export const initializeNotifications = async () => {
   try {
-
     if (!("Notification" in window)) {
       console.log("Browser doesn't support notifications.");
       return;
@@ -17,12 +16,9 @@ export const initializeNotifications = async () => {
       return;
     }
 
-    const currentToken = await getToken(
-      messaging,
-      {
-        vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY
-      }
-    );
+    const currentToken = await getToken(messaging, {
+      vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+    });
 
     if (!currentToken) {
       console.log("No FCM token received.");
@@ -36,24 +32,17 @@ export const initializeNotifications = async () => {
     console.log("Device registered successfully.");
 
     onMessage(messaging, (payload) => {
-
       console.log("Foreground Notification:", payload);
 
       if (payload.notification) {
-        new Notification(
-          payload.notification.title,
-          {
-            body: payload.notification.body,
-            icon: "/vite.svg"
-          }
+        window.dispatchEvent(
+          new CustomEvent("medicine-reminder", {
+            detail: payload.data,
+          }),
         );
       }
-
     });
-
   } catch (error) {
-
     console.log("Notification Error:", error);
-
   }
 };
