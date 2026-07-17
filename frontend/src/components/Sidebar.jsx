@@ -33,9 +33,11 @@ function Sidebar() {
   const handleLogout = async () => {
     try {
       const data = await logoutUser();
+      localStorage.removeItem("token");
       await checkAuth();
       toast.success(data.message);
-      navigate("/login");
+      
+      navigate("/login", { replace: true });
     } catch (error) {
       toast.error(
         error.response?.data?.message ||

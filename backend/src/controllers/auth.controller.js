@@ -44,14 +44,9 @@ export const googleAuth = async (req, res) => {
     }
     const jwtToken = user.generateAuthToken();
 
-    const isProduction = process.env.NODE_ENV === "production";
+    
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      maxAge: 2 * 24 * 60 * 60 * 1000,
-      sameSite: isProduction ? "none" : "lax",
-      secure: isProduction,
-    });
+
 
     const userData = user.toObject();
     delete userData.password;
@@ -85,14 +80,9 @@ export const register = async (req, res) => {
     await user.save();
     await Profile.create({ userId: user._id });
     const token = await user.generateAuthToken();
-    const isProduction = process.env.NODE_ENV === "production";
+    
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      maxAge: 2 * 24 * 60 * 60 * 1000,
-      sameSite: isProduction ? "none" : "lax",
-      secure: isProduction,
-    });
+
     res
       .status(201)
       .json({ user, token, message: "User registered successfully" });
@@ -133,14 +123,9 @@ export const login = async (req, res) => {
     }
     const token = user.generateAuthToken();
 
-    const isProduction = process.env.NODE_ENV === "production";
+    
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      maxAge: 2 * 24 * 60 * 60 * 1000,
-      sameSite: isProduction ? "none" : "lax",
-      secure: isProduction,
-    });
+
 
     const userData = user.toObject();
     delete userData.password;
@@ -155,11 +140,7 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    res.clearCookie("token", {
-      httpOnly: true,
-      sameSite: "strict",
-      secure: false,
-    });
+
     res.status(200).json({ message: "Logout successful" });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
@@ -286,14 +267,9 @@ export const verifyOTP = async (req, res) => {
 
     const jwtToken = user.generateAuthToken();
 
-    const isProduction = process.env.NODE_ENV === "production";
+    
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      maxAge: 2 * 24 * 60 * 60 * 1000,
-      sameSite: isProduction ? "none" : "lax",
-      secure: isProduction,
-    });
+
 
     const userData = user.toObject();
     delete userData.password;
