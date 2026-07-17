@@ -3,8 +3,8 @@ import User from "../models/user.model.js";
 
 const isAuth = async (req, res, next) => {
   try {
-    console.log("Cookies:", req.cookies);
-    console.log("Cookie header:", req.headers.cookie);
+    // console.log("Cookies:", req.cookies);
+    // console.log("Cookie header:", req.headers.cookie);
     // console.log("isAuth middleware");
     const token =
       req.cookies?.token || req.headers?.authorization?.replace("Bearer ", "");
