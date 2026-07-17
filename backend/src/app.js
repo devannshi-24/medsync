@@ -22,10 +22,22 @@ import AIRouter from "./routes/ai.route.js";
 
 const app= express()
 
-app.use(cors({
-    origin: process.env.CORS_ORIGIN,
-    credentials: true   
-}))
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.CORS_ORIGIN,
+];
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
