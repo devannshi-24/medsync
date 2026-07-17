@@ -139,7 +139,7 @@ function Sidebar() {
       <DeleteConfirmModal
         open={showLogoutModal}
         title="Logout"
-        message="Are you sure you want to logout from Med-Core?"
+        message="Are you sure you want to logout from MedSync?"
         onCancel={() => setShowLogoutModal(false)}
         onConfirm={handleLogout}
         confirmText="Logout"

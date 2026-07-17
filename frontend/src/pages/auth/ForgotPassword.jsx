@@ -163,7 +163,7 @@ function ForgotPassword() {
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
             <FaHeartbeat className="text-white text-base" />
           </div>
-          <span className="font-bold text-lg text-slate-800 tracking-tight">Med-Core</span>
+          <span className="font-bold text-lg text-slate-800 tracking-tight"><MedSync></MedSync></span>
         </div>
 
         {/* ════════════════════════════════════════
@@ -218,7 +218,7 @@ function ForgotPassword() {
               <Link to="/" className="text-blue-500 font-semibold hover:underline">Sign in</Link>
             </p>
             <p className="text-center text-xs text-slate-400 mt-3">
-              © 2026 Med-Core. Your data, encrypted &amp; private.
+              © 2026 MedSync. Your data, encrypted &amp; private.
             </p>
           </>
         )}
@@ -338,7 +338,7 @@ function ForgotPassword() {
             </div>
 
             <p className="text-center text-xs text-slate-400 mt-5">
-              © 2026 Med-Core. Your data, encrypted &amp; private.
+              © 2026 MedSync. Your data, encrypted &amp; private.
             </p>
           </>
         )}

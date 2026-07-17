@@ -254,7 +254,7 @@ function Register() {
             <FaHeartbeat className="text-white text-base" />
           </div>
           <span className="font-bold text-lg text-slate-800 tracking-tight">
-            Med-Core
+            MedSync
           </span>
         </div>
 
@@ -397,7 +397,7 @@ function Register() {
               </Link>
             </p>
             <p className="text-center text-xs text-slate-400 mt-3">
-              © 2026 Med-Core. Your data, encrypted &amp; private.
+              © 2026 MedSync. Your data, encrypted &amp; private.
             </p>
           </>
         )}
@@ -485,7 +485,7 @@ function Register() {
             </div>
 
             <p className="text-center text-xs text-slate-400 mt-6">
-              © 2026 Med-Core. Your data, encrypted &amp; private.
+              © 2026 MedSync. Your data, encrypted &amp; private.
             </p>
           </>
         )}
