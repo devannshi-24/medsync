@@ -11,7 +11,11 @@ import cron from "node-cron";
 
 const startMedicineReminderJob = () => {
   cron.schedule("* * * * *", async () => {
+    console.log("\n========== CRON STARTED ==========");
+
     const now = new Date();
+
+    console.log("Current Time:", now.toISOString());
     const schedules = await Schedule.find({
       isActive: true,
       startDate: { $lte: now },
@@ -27,6 +31,11 @@ const startMedicineReminderJob = () => {
         shouldSend = true;
       } else {
         if (!isScheduleDueToday(schedule)) continue;
+
+        console.log("Server Time:", now.toISOString());
+        console.log("Local Hours:", now.getHours(), now.getMinutes());
+        console.log("Schedule Times:", schedule.times);
+        console.log("isTimeDue:", isTimeDue(schedule));
 
         if (!isTimeDue(schedule)) continue;
 
@@ -62,8 +71,6 @@ Please take your medicine and update your dose status in MedSync.`,
             scheduleId: schedule._id.toString(),
           },
         );
-
-
 
         schedule.lastReminderSent = now;
         schedule.snoozedUntil = null;
