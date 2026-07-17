@@ -1,10 +1,13 @@
 export const isScheduleDueToday = (schedule, today = new Date()) => {
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+    });
 
-    const currentDate = new Date(today);
-    currentDate.setHours(0, 0, 0, 0);
-
-    const startDate = new Date(schedule.startDate);
-    startDate.setHours(0, 0, 0, 0);
+    const todayIST = new Date(formatter.format(today));
+    const startIST = new Date(formatter.format(new Date(schedule.startDate)));
 
     if (schedule.frequency === "daily") {
         return true;
@@ -12,43 +15,45 @@ export const isScheduleDueToday = (schedule, today = new Date()) => {
 
     if (schedule.frequency === "alternate") {
         const diffDays = Math.floor(
-            (currentDate - startDate) / (1000 * 60 * 60 * 24)
+            (todayIST - startIST) / (1000 * 60 * 60 * 24)
         );
 
         return diffDays % 2 === 0;
     }
 
     if (schedule.frequency === "weekly") {
-        return currentDate.getDay() === startDate.getDay();
+        return todayIST.getDay() === startIST.getDay();
     }
 
     return false;
 };
 
 export const isTimeDue = (schedule, now = new Date()) => {
-
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-
-    const currentTime = `${hours}:${minutes}`;
+    const currentTime = new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    }).format(now);
 
     return schedule.times.includes(currentTime);
-
 };
 
 export const hasReminderBeenSent = (schedule, now = new Date()) => {
+    if (!schedule.lastReminderSent) return false;
 
-    if (!schedule.lastReminderSent) {
-        return false;
-    }
-
-    const last = new Date(schedule.lastReminderSent);
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    });
 
     return (
-        last.getFullYear() === now.getFullYear() &&
-        last.getMonth() === now.getMonth() &&
-        last.getDate() === now.getDate() &&
-        last.getHours() === now.getHours() &&
-        last.getMinutes() === now.getMinutes()
+        formatter.format(new Date(schedule.lastReminderSent)) ===
+        formatter.format(now)
     );
 };
