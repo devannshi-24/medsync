@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import DashboardLayout from "../components/DashboardLayout";
 import PageHeader from "../components/PageHeader";
-import DoseLogForm from "../components/DoseLogForm";
+import DoseLogForm from "../components/DoselogForm";
 import {getDoseLogs,addDoseLog} from "../services/doselogService";
 import { getSchedules } from "../services/scheduleService";
 import { IoCloseCircleOutline } from "react-icons/io5";

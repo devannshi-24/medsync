@@ -13,7 +13,7 @@ import { useSearchParams } from "react-router-dom";
 import ReminderPopup from "../components/ReminderPopup";
 import { GiMedicines } from "react-icons/gi";
 import PageHeader from "../components/PageHeader";
-import { addDoseLog } from "../services/doseLogService";
+import { addDoseLog } from "../services/doselogService";
 import { snoozeReminder } from "../services/scheduleService";
 
 function Dashboard() {
