@@ -21,7 +21,7 @@ function PersonalInfoCard({ profile, handleChange }) {
           <input
             type="text"
              name="name"
-            value={profile.fullName}
+            value={profile.name}
             onChange={handleChange}
             className="w-full rounded-xl border border-slate-200 px-4 py-3 bg-slate-50 outline-none"
           />
