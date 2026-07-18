@@ -1,5 +1,10 @@
 # 💊 MedSync – AI Powered Medication Management System
 
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20App-success?style=for-the-badge)](https://medsync-pink.vercel.app)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-black?style=for-the-badge)](https://github.com/devannshi-24/medsync)
+
+
 MedSync is a full-stack MERN application designed to simplify medication management through intelligent reminders, adherence tracking, and an AI-powered healthcare assistant.
 
 The platform enables users to manage medicines, schedules, dose history, and symptoms while receiving timely medication reminders and personalized assistance through an AI chatbot with persistent conversation memory.
@@ -30,7 +35,7 @@ The platform enables users to manage medicines, schedules, dose history, and sym
 - Change Password
 - Protected Routes
 - Secure Password Hashing (bcrypt)
-- Secure Cookies
+- JWT Bearer Authentication
 - Environment-based Configuration
 
 ---
@@ -180,7 +185,7 @@ Built using **LangGraph**, **LangChain**, and **Groq LLM**.
 - JWT
 - Google OAuth
 - bcrypt
-- Nodemailer
+- Brevo Email API
 - OTP Verification
 
 ---
@@ -358,29 +363,16 @@ npm run dev
 
 ---
 
-# Running the Application
-
-Backend
-
-```bash
-cd backend
-npm run dev
-```
+## Deployment
 
 Frontend
+- Vercel
 
-```bash
-cd frontend
-npm run dev
-```
+Backend
+- Render
 
-Open:
-
-```text
-http://localhost:5173
-```
-
----
+Database
+- MongoDB Atlas
 
 # Environment Variables
 
